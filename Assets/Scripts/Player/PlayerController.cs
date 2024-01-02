@@ -10,10 +10,12 @@ public class PlayerController : MonoBehaviour
 {
     //Managers
     [SerializeField] GameManager GameManager;
+    [SerializeField] PlayerInput PlayerInput;
 
     //Character
     [SerializeField] private float _speed = 4.0f;
     private Vector3 target;
+    private Vector2 inputVector;
 
     //Animation
     private Animator m_Animator;
@@ -22,11 +24,11 @@ public class PlayerController : MonoBehaviour
     private int m_DirYHash = Animator.StringToHash("DirY");
     private int m_SpeedHash = Animator.StringToHash("Speed");
 
-    [SerializeField] PlayerInput _playerInput;
+    
 
     private void Awake()
     {
-        _playerInput = GetComponent<PlayerInput>();
+        PlayerInput = GetComponent<PlayerInput>();
     }
 
     private void Start()
@@ -34,18 +36,22 @@ public class PlayerController : MonoBehaviour
         target = transform.position;
     }
 
+    private void Update()
+    {
+        InputHandler();
+    }
+
     private void FixedUpdate()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            RaycastHit2D hit = _playerInput.GetTargetHit();
+            RaycastHit2D hit = PlayerInput.GetTargetHit();
 
             if (hit.collider != null)
             {
                 if (hit.collider.CompareTag("Ground"))
                 {
-                    Vector3 mousePosition = _playerInput.GetTargetPosition();
-                    target = new Vector3(mousePosition.x, mousePosition.y, transform.position.z);
+                    target = new Vector3(inputVector.x, inputVector.y, transform.position.z);
                     StopAllCoroutines();
                     StartCoroutine(MoveToClickedPosition());
                 }
@@ -61,4 +67,9 @@ public class PlayerController : MonoBehaviour
             yield return null;
         }
     }
+
+    private void InputHandler()
+    {
+        inputVector = PlayerInput.GetTargetPosition();
+    } 
 }
